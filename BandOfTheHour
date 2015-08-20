@@ -1,0 +1,187 @@
+import java.util.Scanner;
+
+public class BandOfTheHour {
+    private static final String ERROR = "ERROR: Out of range, try again";
+    private static final int LETTER_A = 65;
+    private static final int NUMBER_POSITIONS = 8;
+    private static final int NUMBER_ROWS = 10;
+    private static final String SPACE = "            : ";
+    private static double[] averageWeight;
+    private static double[][] bandRows;
+    private static int garbageCollect;
+    private static char garbageCollectChar;
+    private static int indexPositions;
+    private static int indexRows;
+    private static Scanner keyboard;
+    private static int numberPositions;
+    private static int numberRows;
+    private static double[] totalWeight;
+
+    static {
+        keyboard = new Scanner(System.in);
+    }
+
+    public static void main(String[] strArr) {
+        numberRows = 0;
+        numberPositions = 0;
+        System.out.println("\nWelcome to the Band of the Hour");
+        System.out.println("-------------------------------\n");
+        System.out.print("Please enter number of rows               : ");
+        garbageCollect = keyboard.nextInt();
+        while (true) {
+            if (garbageCollect >= 1 && garbageCollect <= NUMBER_ROWS) {
+                break;
+            }
+            System.out.print("ERROR: Out of range, try again            : ");
+            garbageCollect = keyboard.nextInt();
+        }
+        numberRows = garbageCollect;
+        bandRows = new double[numberRows][];
+        garbageCollect = NUMBER_ROWS;
+        indexRows = 0;
+        while (indexRows < numberRows) {
+            System.out.print("Please enter number of Positions in row " + ((char) (indexRows + LETTER_A)) + " : ");
+            garbageCollect = keyboard.nextInt();
+            while (true) {
+                if (garbageCollect >= 0 && garbageCollect <= NUMBER_POSITIONS) {
+                    break;
+                }
+                System.out.print("ERROR: Out of range, try again            : ");
+                garbageCollect = keyboard.nextInt();
+            }
+            numberPositions = garbageCollect;
+            bandRows[indexRows] = new double[numberPositions];
+            indexRows++;
+        }
+        totalWeight = new double[numberRows];
+        averageWeight = new double[numberRows];
+        indexRows = 0;
+        while (indexRows < numberRows) {
+            totalWeight[indexRows] = 0.0d;
+            averageWeight[indexRows] = 0.0d;
+            indexRows++;
+        }
+        char toLowerCase;
+        do {
+            System.out.print("\n(A)dd, (R)emove, (P)rint,          e(X)it : ");
+            garbageCollectChar = keyboard.next().charAt(0);
+            toLowerCase = Character.toLowerCase(garbageCollectChar);
+            System.out.println("");
+            switch (toLowerCase) {
+                case 'a':
+                case 'r':
+                    computePlace(toLowerCase);
+                    break;
+                case 'p':
+                    printData();
+                    break;
+                case 'x':
+                    break;
+                default:
+                    printError();
+                    break;
+            }
+            System.out.println("");
+        } while (toLowerCase != 'x');
+    }
+
+    private static void computePlace(char c) {
+        System.out.print("Please enter row letter                   : ");
+        garbageCollectChar = keyboard.next().charAt(0);
+        int toUpperCase = Character.toUpperCase(garbageCollectChar);
+        indexRows = toUpperCase - 65;
+        while (true) {
+            if (indexRows <= bandRows.length - 1 && indexRows >= 0) {
+                break;
+            }
+            System.out.print("ERROR: Out of range, try again            : ");
+            garbageCollectChar = keyboard.next().charAt(0);
+            toUpperCase = Character.toUpperCase(garbageCollectChar);
+            indexRows = toUpperCase - 65;
+        }
+        indexRows = toUpperCase - 65;
+        System.out.print("Please enter position number  (1 to " + bandRows[indexRows].length + ")    : ");
+        garbageCollect = keyboard.nextInt();
+        indexPositions = garbageCollect;
+        while (true) {
+            if (indexPositions <= bandRows[indexRows].length && indexRows >= 0) {
+                break;
+            }
+            System.out.print("ERROR: Out of range, try again            : ");
+            garbageCollect = keyboard.nextInt();
+            indexPositions = garbageCollect;
+        }
+        switch (c) {
+            case 'a':
+                computeAdd();
+            case 'r':
+                computeRemove();
+            default:
+        }
+    }
+
+    private static void computeAdd() {
+        if (bandRows[indexRows][indexPositions - 1] > 0.0d) {
+            System.out.print("ERROR: There is already a musician there.");
+            return;
+        }
+        System.out.print("Please enter weight (45.0 to 200.0)       : ");
+        double nextDouble = keyboard.nextDouble();
+        while (true) {
+            if (nextDouble >= 45.0d && nextDouble <= 200.0d) {
+                break;
+            }
+            System.out.print("ERROR: Out of range, try again            : ");
+            nextDouble = keyboard.nextDouble();
+        }
+        double[] dArr = bandRows[indexRows];
+        int i = indexPositions - 1;
+        dArr[i] = dArr[i] + nextDouble;
+        totalWeight[indexRows] = 0.0d;
+        for (double d : bandRows[indexRows]) {
+            double[] dArr2 = totalWeight;
+            int i2 = indexRows;
+            dArr2[i2] = dArr2[i2] + d;
+        }
+        if (totalWeight[indexRows] > ((double) (bandRows[indexRows].length * 100))) {
+            System.out.print("ERROR: That would exceed the average weight limit.");
+            dArr = bandRows[indexRows];
+            i = indexPositions - 1;
+            dArr[i] = dArr[i] - nextDouble;
+            return;
+        }
+        System.out.println("****** Musician Added.");
+    }
+
+    private static void computeRemove() {
+        if (bandRows[indexRows][indexPositions - 1] == 0.0d) {
+            System.out.print("ERROR: That position is vacant.");
+        } else {
+            bandRows[indexRows][indexPositions - 1] = 0.0d;
+            System.out.print("****** Musician removed.");
+        }
+        for (double d : bandRows[indexRows]) {
+            double[] dArr = totalWeight;
+            int i = indexRows;
+            dArr[i] = dArr[i] + d;
+        }
+    }
+
+    private static void printData() {
+        indexRows = 0;
+        while (indexRows < bandRows.length) {
+            System.out.print(((char) (indexRows + LETTER_A)) + " ");
+            indexPositions = 0;
+            while (indexPositions < bandRows[indexRows].length) {
+                System.out.print(bandRows[indexRows][indexPositions] + "  ");
+                indexPositions++;
+            }
+            System.out.print("\n");
+            indexRows++;
+        }
+    }
+
+    private static void printError() {
+        System.out.print("ERROR: Invalid option, try again          : ");
+    }
+}
